@@ -1,0 +1,29 @@
+{
+  "name": "sprint-planning-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Google Sheets powered Sprint Planning Dashboard",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "google-auth-library": "^9.15.1",
+    "google-spreadsheet": "^4.1.4",
+    "lucide-react": "^0.525.0",
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "@types/react": "^19.1.7",
+    "@types/react-dom": "^19.1.6",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3"
+  }
+}
