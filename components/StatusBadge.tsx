@@ -6,7 +6,7 @@ export default function StatusBadge({
   status,
 }: StatusBadgeProps) {
   const getColor = () => {
-    switch (status?.toLowerCase()) {
+    switch (status.toLowerCase()) {
       case "done":
         return "#16a34a";
 
@@ -25,11 +25,10 @@ export default function StatusBadge({
     <span
       style={{
         background: getColor(),
-        color: "#ffffff",
-        padding: "6px 12px",
+        color: "#fff",
+        padding: "4px 10px",
         borderRadius: "999px",
         fontSize: "12px",
-        fontWeight: "bold"
       }}
     >
       {status}

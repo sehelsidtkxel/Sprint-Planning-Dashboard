@@ -10,36 +10,33 @@ export default function SprintCard({
   return (
     <div
       style={{
+        background: "#ffffff",
         border: "1px solid #e5e7eb",
         borderRadius: "12px",
         padding: "20px",
         marginBottom: "20px",
-        background: "#ffffff"
+        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
       }}
     >
-      <h3
-        style={{
-          marginTop: 0
-        }}
-      >
-        {sprint.title}
-      </h3>
+      <h3>{sprint.title}</h3>
 
       <p>
         <strong>Version:</strong> {sprint.version}
       </p>
 
       <p>
-        <strong>Sprint Dates:</strong> {sprint.sprintDates}
+        <strong>Sprint Dates:</strong>{" "}
+        {sprint.sprintDates}
       </p>
 
       <p>
-        <strong>Release Date:</strong> {sprint.releaseDate}
+        <strong>Release Date:</strong>{" "}
+        {sprint.releaseDate}
       </p>
 
       <div
         style={{
-          marginTop: "15px"
+          margin: "15px 0",
         }}
       >
         <StatusBadge
@@ -47,26 +44,32 @@ export default function SprintCard({
         />
       </div>
 
-      <hr
-        style={{
-          margin: "20px 0"
-        }}
-      />
+      <hr />
 
       {sprint.items.map((item: any) => (
         <div
           key={item.id}
           style={{
-            marginBottom: "15px"
+            padding: "10px 0",
           }}
         >
-          <strong>{item.phase}</strong>
+          <strong>{item.task}</strong>
 
-          <p>{item.tasks}</p>
+          <br />
 
           <small>
-            {item.features}
+            {item.feature}
           </small>
+
+          <div
+            style={{
+              marginTop: "5px",
+            }}
+          >
+            <StatusBadge
+              status={item.status}
+            />
+          </div>
         </div>
       ))}
     </div>

@@ -1,27 +1,18 @@
 import { NextResponse } from "next/server";
-import { getSprintRows } from "../../../lib/googleSheets";
-import { transformData } from "../../../lib/transformData";
-
-export const revalidate = 60;
+import { getSprintTasks } from "../../../lib/googleSheets";
 
 export async function GET() {
   try {
-    const rows = await getSprintRows();
+    const tasks = await getSprintTasks();
 
-    const data = transformData(rows);
-
-    return NextResponse.json(data);
+    return NextResponse.json({
+      success: true,
+      tasks,
+    });
   } catch (error) {
-    console.error(error);
-
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Unable to load sprint data."
-      },
-      {
-        status: 500
-      }
-    );
+    return NextResponse.json({
+      success: false,
+      tasks: [],
+    });
   }
 }
