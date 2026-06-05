@@ -1,23 +1,4 @@
-async function getData() {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/sprints`,
-    {
-      next: {
-        revalidate: 60
-      }
-    }
-  );
-
-  if (!response.ok) {
-    return null;
-  }
-
-  return response.json();
-}
-
-export default async function HomePage() {
-  const data = await getData();
-
+export default function HomePage() {
   return (
     <main
       style={{
@@ -45,29 +26,16 @@ export default async function HomePage() {
         Live data powered by Google Sheets
       </p>
 
-      {!data && (
-        <div>
-          Waiting for Google Sheets connection...
-        </div>
-      )}
-
-      {data?.streams?.map((stream: any) => (
-        <div
-          key={stream.id}
-          style={{
-            marginBottom: "30px",
-            border: "1px solid #ddd",
-            borderRadius: "12px",
-            padding: "20px"
-          }}
-        >
-          <h2>{stream.name}</h2>
-
-          <p>
-            Sprints: {stream.sprints.length}
-          </p>
-        </div>
-      ))}
+      <div
+        style={{
+          padding: "20px",
+          border: "1px solid #ddd",
+          borderRadius: "10px",
+          background: "#fff"
+        }}
+      >
+        Application is running successfully 🚀
+      </div>
     </main>
   );
 }
