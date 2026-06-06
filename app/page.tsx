@@ -1,6 +1,6 @@
 async function getData() {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/sprints`,
+    "/api/sprints",
     {
       cache: "no-store",
     }
@@ -8,7 +8,6 @@ async function getData() {
 
   return response.json();
 }
-
 export default async function HomePage() {
   const data = await getData();
 
