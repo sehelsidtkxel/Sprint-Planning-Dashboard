@@ -1,15 +1,6 @@
-async function getData() {
-  const response = await fetch(
-    "/api/sprints",
-    {
-      cache: "no-store",
-    }
-  );
-
-  return response.json();
-}
+import { getSprintTasks } from "../lib/googleSheets";
 export default async function HomePage() {
-  const data = await getData();
+  const tasks = await getSprintTasks();
 
   return (
     <main
@@ -38,7 +29,7 @@ export default async function HomePage() {
         Live data powered by Google Sheets
       </p>
 
-      {data.tasks.map((task: any, index: number) => (
+{tasks.map((task: any, index: number) => (
         <div
           key={index}
           style={{
