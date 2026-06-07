@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
 type Stream = {
@@ -9,6 +10,7 @@ type Stream = {
 };
 
 export default function AddSprintForm() {
+  const router = useRouter();
   const [streams, setStreams] = useState<Stream[]>([]);
 
   const [form, setForm] = useState({
@@ -70,6 +72,34 @@ export default function AddSprintForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    if (
+      !form.stream_id ||
+      !form.title.trim() ||
+      !form.start_date ||
+      !form.end_date ||
+      !form.release_date ||
+      !form.phase.trim() ||
+      !form.category.trim() ||
+      !form.resources.trim() ||
+      !form.task.trim() ||
+      !form.feature.trim() ||
+      !form.comments.trim() ||
+      !form.status
+    ) {
+      alert("All fields are required.");
+      return;
+    }
+
+    if (new Date(form.end_date) < new Date(form.start_date)) {
+      alert("End Date cannot be before Start Date.");
+      return;
+    }
+
+    if (new Date(form.release_date) < new Date(form.start_date)) {
+      alert("Release Date cannot be before Start Date.");
+      return;
+    }
+
     const { error } = await supabase.from("sprints").insert([form]);
 
     if (error) {
@@ -93,6 +123,8 @@ export default function AddSprintForm() {
       comments: "",
       status: "Planned",
     });
+
+    router.refresh();
   }
 
   return (
@@ -104,6 +136,7 @@ export default function AddSprintForm() {
 
       <div className="grid grid-cols-2 gap-4">
         <select
+          required
           className="border rounded-lg p-3"
           value={form.stream_id}
           onChange={(e) =>
@@ -118,13 +151,17 @@ export default function AddSprintForm() {
         </select>
 
         <input
+          required
           className="border rounded-lg p-3"
           placeholder="Sprint Name"
           value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, title: e.target.value })
+          }
         />
 
         <input
+          required
           type="date"
           className="border rounded-lg p-3"
           value={form.start_date}
@@ -134,6 +171,7 @@ export default function AddSprintForm() {
         />
 
         <input
+          required
           type="date"
           className="border rounded-lg p-3"
           value={form.end_date}
@@ -143,6 +181,7 @@ export default function AddSprintForm() {
         />
 
         <input
+          required
           type="date"
           className="border rounded-lg p-3"
           value={form.release_date}
@@ -152,9 +191,12 @@ export default function AddSprintForm() {
         />
 
         <select
+          required
           className="border rounded-lg p-3"
           value={form.phase}
-          onChange={(e) => setForm({ ...form, phase: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, phase: e.target.value })
+          }
         >
           <option value="">Select Phase</option>
           <option value="Development">Development</option>
@@ -163,34 +205,69 @@ export default function AddSprintForm() {
         </select>
 
         <input
+          required
+          maxLength={100}
           className="border rounded-lg p-3"
           placeholder="Category"
           value={form.category}
-          onChange={(e) => setForm({ ...form, category: e.target.value })}
-        />
-
-        <input
-          className="border rounded-lg p-3"
-          placeholder="Resources"
-          value={form.resources}
           onChange={(e) =>
-            setForm({ ...form, resources: e.target.value })
+            setForm({ ...form, category: e.target.value })
           }
         />
 
-        <input
-          className="border rounded-lg p-3"
-          placeholder="Task"
-          value={form.task}
-          onChange={(e) => setForm({ ...form, task: e.target.value })}
-        />
+        <div>
+          <textarea
+            required
+            rows={3}
+            maxLength={500}
+            className="border rounded-lg p-3 w-full"
+            placeholder="Resources"
+            value={form.resources}
+            onChange={(e) =>
+              setForm({ ...form, resources: e.target.value })
+            }
+          />
 
-        <input
-          className="border rounded-lg p-3"
-          placeholder="Feature"
-          value={form.feature}
-          onChange={(e) => setForm({ ...form, feature: e.target.value })}
-        />
+          <p className="text-xs text-gray-400 text-right">
+            {form.resources.length}/500
+          </p>
+        </div>
+
+        <div>
+          <textarea
+            required
+            rows={4}
+            maxLength={1000}
+            className="border rounded-lg p-3 w-full"
+            placeholder="Task"
+            value={form.task}
+            onChange={(e) =>
+              setForm({ ...form, task: e.target.value })
+            }
+          />
+
+          <p className="text-xs text-gray-400 text-right">
+            {form.task.length}/1000
+          </p>
+        </div>
+
+        <div>
+          <textarea
+            required
+            rows={4}
+            maxLength={1000}
+            className="border rounded-lg p-3 w-full"
+            placeholder="Feature"
+            value={form.feature}
+            onChange={(e) =>
+              setForm({ ...form, feature: e.target.value })
+            }
+          />
+
+          <p className="text-xs text-gray-400 text-right">
+            {form.feature.length}/1000
+          </p>
+        </div>
       </div>
 
       {form.release_date && (
@@ -205,18 +282,31 @@ export default function AddSprintForm() {
         </div>
       )}
 
-      <textarea
-        className="border rounded-lg p-3 mt-4 w-full"
-        rows={4}
-        placeholder="Comments"
-        value={form.comments}
-        onChange={(e) => setForm({ ...form, comments: e.target.value })}
-      />
+      <div className="mt-4">
+        <textarea
+          required
+          rows={6}
+          maxLength={2000}
+          className="border rounded-lg p-3 w-full"
+          placeholder="Comments"
+          value={form.comments}
+          onChange={(e) =>
+            setForm({ ...form, comments: e.target.value })
+          }
+        />
+
+        <p className="text-xs text-gray-400 text-right">
+          {form.comments.length}/2000
+        </p>
+      </div>
 
       <select
+        required
         className="border rounded-lg p-3 mt-4 w-full"
         value={form.status}
-        onChange={(e) => setForm({ ...form, status: e.target.value })}
+        onChange={(e) =>
+          setForm({ ...form, status: e.target.value })
+        }
       >
         <option>Planned</option>
         <option>In Progress</option>

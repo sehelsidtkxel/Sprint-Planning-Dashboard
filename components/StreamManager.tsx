@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
 type Stream = {
@@ -10,10 +11,13 @@ type Stream = {
 };
 
 export default function StreamManager() {
+  const router = useRouter();
+
   const [streams, setStreams] = useState<Stream[]>([]);
   const [name, setName] = useState("");
   const [color, setColor] = useState("blue");
-  const [editingStream, setEditingStream] = useState<Stream | null>(null);
+  const [editingStream, setEditingStream] =
+    useState<Stream | null>(null);
 
   async function loadStreams() {
     const { data, error } = await supabase
@@ -43,7 +47,9 @@ export default function StreamManager() {
 
     setName("");
     setColor("blue");
-    loadStreams();
+
+    await loadStreams();
+    router.refresh();
   }
 
   async function updateStream(e: React.FormEvent) {
@@ -65,7 +71,9 @@ export default function StreamManager() {
     }
 
     setEditingStream(null);
-    loadStreams();
+
+    await loadStreams();
+    router.refresh();
   }
 
   async function deleteStream(id: string) {
@@ -85,7 +93,8 @@ export default function StreamManager() {
       return;
     }
 
-    loadStreams();
+    await loadStreams();
+    router.refresh();
   }
 
   useEffect(() => {
@@ -98,7 +107,10 @@ export default function StreamManager() {
         Manage Streams
       </h2>
 
-      <form onSubmit={addStream} className="grid grid-cols-3 gap-4 mb-6">
+      <form
+        onSubmit={addStream}
+        className="grid grid-cols-3 gap-4 mb-6"
+      >
         <input
           className="border rounded-lg p-3"
           placeholder="Stream name"
@@ -168,9 +180,11 @@ export default function StreamManager() {
             <th className="p-4 text-left text-xs uppercase text-gray-500">
               Stream
             </th>
+
             <th className="p-4 text-left text-xs uppercase text-gray-500">
               Color
             </th>
+
             <th className="p-4 text-right text-xs uppercase text-gray-500">
               Actions
             </th>

@@ -45,7 +45,7 @@ export default function EditSprintModal({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-3xl">
+      <div className="bg-white rounded-xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-bold mb-6">
           Edit Sprint
         </h2>
@@ -79,12 +79,14 @@ export default function EditSprintModal({
               setForm({ ...form, phase: e.target.value })
             }
           >
+            <option value="">Select Phase</option>
             <option>Development</option>
             <option>QA - Staging</option>
             <option>QA - UAT Regression</option>
           </select>
 
           <input
+            maxLength={100}
             className="border rounded-lg p-3"
             value={form.category}
             placeholder="Category"
@@ -93,32 +95,56 @@ export default function EditSprintModal({
             }
           />
 
-          <input
-            className="border rounded-lg p-3"
-            value={form.resources}
-            placeholder="Resources"
-            onChange={(e) =>
-              setForm({ ...form, resources: e.target.value })
-            }
-          />
+          <div>
+            <textarea
+              rows={3}
+              maxLength={500}
+              className="border rounded-lg p-3 w-full"
+              value={form.resources}
+              placeholder="Resources"
+              onChange={(e) =>
+                setForm({ ...form, resources: e.target.value })
+              }
+            />
 
-          <input
-            className="border rounded-lg p-3"
-            value={form.task}
-            placeholder="Task"
-            onChange={(e) =>
-              setForm({ ...form, task: e.target.value })
-            }
-          />
+            <p className="text-xs text-gray-400 text-right">
+              {form.resources.length}/500
+            </p>
+          </div>
 
-          <input
-            className="border rounded-lg p-3"
-            value={form.feature}
-            placeholder="Feature"
-            onChange={(e) =>
-              setForm({ ...form, feature: e.target.value })
-            }
-          />
+          <div>
+            <textarea
+              rows={4}
+              maxLength={1000}
+              className="border rounded-lg p-3 w-full"
+              value={form.task}
+              placeholder="Task"
+              onChange={(e) =>
+                setForm({ ...form, task: e.target.value })
+              }
+            />
+
+            <p className="text-xs text-gray-400 text-right">
+              {form.task.length}/1000
+            </p>
+          </div>
+
+          <div>
+            <textarea
+              rows={4}
+              maxLength={1000}
+              className="border rounded-lg p-3 w-full"
+              value={form.feature}
+              placeholder="Feature"
+              onChange={(e) =>
+                setForm({ ...form, feature: e.target.value })
+              }
+            />
+
+            <p className="text-xs text-gray-400 text-right">
+              {form.feature.length}/1000
+            </p>
+          </div>
 
           <select
             className="border rounded-lg p-3"
@@ -134,18 +160,25 @@ export default function EditSprintModal({
           </select>
         </div>
 
-        <textarea
-          className="border rounded-lg p-3 mt-4 w-full"
-          rows={4}
-          value={form.comments}
-          placeholder="Comments"
-          onChange={(e) =>
-            setForm({
-              ...form,
-              comments: e.target.value,
-            })
-          }
-        />
+        <div className="mt-4">
+          <textarea
+            rows={6}
+            maxLength={2000}
+            className="border rounded-lg p-3 w-full"
+            value={form.comments}
+            placeholder="Comments"
+            onChange={(e) =>
+              setForm({
+                ...form,
+                comments: e.target.value,
+              })
+            }
+          />
+
+          <p className="text-xs text-gray-400 text-right">
+            {form.comments.length}/2000
+          </p>
+        </div>
 
         <div className="flex justify-end gap-3 mt-6">
           <button

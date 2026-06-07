@@ -190,10 +190,26 @@ export default function TaskTable({ tasks }: Props) {
                         <tr className="border-t hover:bg-slate-50 transition">
                           <td className="p-4">{task.phase}</td>
                           <td className="p-4">{task.category}</td>
-                          <td className="p-4">{task.resources}</td>
-                          <td className="p-4 font-medium">{task.task}</td>
-                          <td className="p-4">{task.feature}</td>
-                          <td className="p-4">{task.comments}</td>
+                          <td className="p-4 max-w-xs">
+  <div className="truncate" title={task.resources}>
+    {task.resources}
+  </div>
+</td>
+                          <td className="p-4 max-w-xs">
+  <div className="truncate font-medium" title={task.task}>
+    {task.task}
+  </div>
+</td>
+                          <td className="p-4 max-w-xs">
+  <div className="truncate" title={task.feature}>
+    {task.feature}
+  </div>
+</td>
+                         <td className="p-4 max-w-xs">
+  <div className="truncate" title={task.comments}>
+    {task.comments}
+  </div>
+</td>
                           <td className="p-4">
                             <StatusBadge status={task.status} />
                           </td>

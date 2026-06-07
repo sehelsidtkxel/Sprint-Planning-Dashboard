@@ -57,6 +57,18 @@ export default function StreamTabs({
           <span className="font-semibold">{stream.name}</span>
         </button>
       ))}
+
+      <button
+  onClick={() => onSelectStream("backlog")}
+  className={`flex items-center gap-2 px-5 py-3 rounded-xl border transition ${
+    selectedStream === "backlog"
+      ? "bg-purple-600 text-white border-purple-600"
+      : "bg-white hover:bg-gray-50"
+  }`}
+>
+  <span>🏷</span>
+  <span className="font-semibold">Backlog</span>
+</button>
     </div>
   );
 }
