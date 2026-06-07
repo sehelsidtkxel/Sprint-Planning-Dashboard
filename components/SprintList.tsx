@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import StatusBadge from "./StatusBadge";
+import EditSprintModal from "./EditSprintModal";
 
 type Sprint = {
   id: string;
