@@ -18,6 +18,10 @@ export default function AddSprintForm({
   const router = useRouter();
   const [streams, setStreams] = useState<Stream[]>([]);
 
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] =
+    useState<"success" | "error">("success");
+
   const [form, setForm] = useState({
     stream_id: "",
     title: "",
@@ -41,7 +45,8 @@ export default function AddSprintForm({
         .order("name");
 
       if (error) {
-        alert(error.message);
+        setMessageType("error");
+        setMessage(error.message);
         return;
       }
 
@@ -77,6 +82,8 @@ export default function AddSprintForm({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
+    setMessage("");
+
     if (
       !form.stream_id ||
       !form.title.trim() ||
@@ -91,36 +98,35 @@ export default function AddSprintForm({
       !form.comments.trim() ||
       !form.status
     ) {
-      alert("All fields are required.");
+      setMessageType("error");
+      setMessage("All fields are required.");
       return;
     }
 
     if (new Date(form.end_date) < new Date(form.start_date)) {
-      alert("End Date cannot be before Start Date.");
+      setMessageType("error");
+      setMessage("End Date cannot be before Start Date.");
       return;
     }
 
     if (new Date(form.release_date) < new Date(form.start_date)) {
-      alert("Release Date cannot be before Start Date.");
+      setMessageType("error");
+      setMessage("Release Date cannot be before Start Date.");
       return;
     }
 
     const { error } = await supabase.from("sprints").insert([form]);
 
     if (error) {
-      alert(error.message);
+      setMessageType("error");
+      setMessage(error.message);
       return;
     }
 
-alert("Sprint saved successfully");
+    setMessageType("success");
+    setMessage("Sprint saved successfully.");
 
-if (onSuccess) {
-  onSuccess();
-}
-
-setForm({
-
-    
+    setForm({
       stream_id: streams[0]?.id || "",
       title: "",
       start_date: "",
@@ -136,6 +142,12 @@ setForm({
     });
 
     router.refresh();
+
+    setTimeout(() => {
+      if (onSuccess) {
+        onSuccess();
+      }
+    }, 700);
   }
 
   return (
@@ -144,6 +156,18 @@ setForm({
       className="bg-white rounded-xl border shadow-sm p-6"
     >
       <h2 className="text-2xl font-bold mb-6">Add New Sprint</h2>
+
+      {message && (
+        <div
+          className={`mb-5 rounded-lg px-4 py-3 font-semibold ${
+            messageType === "success"
+              ? "bg-green-100 text-green-700 border border-green-200"
+              : "bg-red-100 text-red-700 border border-red-200"
+          }`}
+        >
+          {message}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <select
@@ -226,53 +250,35 @@ setForm({
           }
         />
 
-        <div>
-          <RichTextField
-  label="Resources"
-  value={form.resources}
-  maxLength={1000}
-  rows={4}
-  onChange={(value) =>
-    setForm({ ...form, resources: value })
-  }
-/>
+        <RichTextField
+          label="Resources"
+          value={form.resources}
+          maxLength={1000}
+          rows={4}
+          onChange={(value) =>
+            setForm({ ...form, resources: value })
+          }
+        />
 
-          <p className="text-xs text-gray-400 text-right">
-            {form.resources.length}/500
-          </p>
-        </div>
+        <RichTextField
+          label="Task"
+          value={form.task}
+          maxLength={1000}
+          rows={4}
+          onChange={(value) =>
+            setForm({ ...form, task: value })
+          }
+        />
 
-        <div>
-          <RichTextField
-  label="Task"
-  value={form.task}
-  maxLength={1000}
-  rows={4}
-  onChange={(value) =>
-    setForm({ ...form, task: value })
-  }
-/>
-
-          <p className="text-xs text-gray-400 text-right">
-            {form.task.length}/1000
-          </p>
-        </div>
-
-        <div>
-      <RichTextField
-  label="Feature"
-  value={form.feature}
-  maxLength={1000}
-  rows={4}
-  onChange={(value) =>
-    setForm({ ...form, feature: value })
-  }
-/>
-
-          <p className="text-xs text-gray-400 text-right">
-            {form.feature.length}/1000
-          </p>
-        </div>
+        <RichTextField
+          label="Feature"
+          value={form.feature}
+          maxLength={1000}
+          rows={4}
+          onChange={(value) =>
+            setForm({ ...form, feature: value })
+          }
+        />
       </div>
 
       {form.release_date && (
