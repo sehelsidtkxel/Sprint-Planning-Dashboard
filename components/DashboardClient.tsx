@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Header from "./Header";
 import DashboardStats from "./DashboardStats";
 import StreamTabs from "./StreamTabs";
 import TaskTable from "./TaskTable";
@@ -53,19 +54,13 @@ export default function DashboardClient({
 
   return (
     <>
-    <UpcomingReleaseHero tasks={tasks} />
+      <Header search={search} onSearchChange={setSearch} />
+
+      <UpcomingReleaseHero tasks={tasks} />
+
       {selectedStream !== "backlog" && (
         <DashboardStats tasks={searchedTasks} />
       )}
-
-      <div className="mb-6">
-        <input
-          className="w-full border rounded-xl px-5 py-4 shadow-sm"
-          placeholder="Search by sprint, stream, feature, resource, status..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
 
       <StreamTabs
         streams={streams}

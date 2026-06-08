@@ -1,4 +1,4 @@
-import Header from "../components/Header";
+
 import DashboardClient from "../components/DashboardClient";
 
 import { getSprintsFromSupabase } from "../lib/supabaseSprints";
@@ -11,9 +11,9 @@ export default async function HomePage() {
   const backlogItems = await getBacklogItems();
 
   return (
-    <main className="min-h-screen bg-slate-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        <Header />
+    <main className="min-h-screen bg-slate-100">
+      <div className="max-w-7xl mx-auto px-8 py-6">
+
 
         <DashboardClient
           streams={streams}
