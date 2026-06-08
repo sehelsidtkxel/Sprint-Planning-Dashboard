@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StatusBadge from "./StatusBadge";
+import RichTextDisplay from "./RichTextDisplay";
 import { SprintTask } from "../lib/types";
 
 interface Props {
@@ -21,6 +22,16 @@ function getProgress(status?: string) {
   }
 }
 
+function formatDate(dateString?: string) {
+  if (!dateString) return "-";
+
+  return new Date(dateString).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function getReleaseWeek(dateValue?: string) {
   if (!dateValue) return "Not set";
 
@@ -35,16 +46,6 @@ function getReleaseWeek(dateValue?: string) {
     week === 3 ? "3rd" : `${week}th`;
 
   return `${month} ${suffix} week (${date.getFullYear()})`;
-}
-
-function formatDate(dateString?: string) {
-  if (!dateString) return "-";
-
-  return new Date(dateString).toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 function getStreamColor(color?: string) {
@@ -64,6 +65,26 @@ function getStreamColor(color?: string) {
   }
 }
 
+function getResourceChips(resources?: string) {
+  if (!resources) return [];
+
+  return resources
+    .replaceAll("**", "")
+    .split(/\n|,|•|-/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function formatUpdated(dateString?: string) {
+  if (!dateString) return "Recently updated";
+
+  return `Updated ${new Date(dateString).toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  })}`;
+}
+
 export default function TaskTable({ tasks }: Props) {
   const groupedStreams = tasks.reduce((acc: any, sprint: any) => {
     const streamName = sprint.streams?.name || "Unassigned";
@@ -73,12 +94,15 @@ export default function TaskTable({ tasks }: Props) {
     }
 
     acc[streamName].push(sprint);
-
     return acc;
   }, {});
 
   const streamNames = Object.keys(groupedStreams);
-  const [openStreams, setOpenStreams] = useState<string[]>(streamNames);
+  const [openStreams, setOpenStreams] = useState<string[]>([]);
+
+  useEffect(() => {
+    setOpenStreams(streamNames);
+  }, [tasks.length]);
 
   function toggleStream(streamName: string) {
     setOpenStreams((current) =>
@@ -88,11 +112,77 @@ export default function TaskTable({ tasks }: Props) {
     );
   }
 
+  function expandAll() {
+    setOpenStreams(streamNames);
+  }
+
+  function collapseAll() {
+    setOpenStreams([]);
+  }
+
+  if (tasks.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border shadow-sm p-10 text-center">
+        <h2 className="text-2xl font-bold text-slate-800">
+          No sprints found
+        </h2>
+        <p className="text-gray-500 mt-2">
+          No sprint data is available for the selected stream.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
+      <div className="flex justify-end gap-3">
+        <button
+          onClick={expandAll}
+          className="bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold"
+        >
+          Expand All
+        </button>
+
+        <button
+          onClick={collapseAll}
+          className="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-semibold"
+        >
+          Collapse All
+        </button>
+      </div>
+
       {Object.entries(groupedStreams).map(
         ([streamName, streamSprints]: any) => {
           const isOpen = openStreams.includes(streamName);
+
+          const planned = streamSprints.filter(
+            (t: any) => t.status === "Planned"
+          ).length;
+
+          const inProgress = streamSprints.filter(
+            (t: any) => t.status === "In Progress"
+          ).length;
+
+          const done = streamSprints.filter(
+            (t: any) => t.status === "Done"
+          ).length;
+
+          const blocked = streamSprints.filter(
+            (t: any) => t.status === "Blocked"
+          ).length;
+
+          const total = streamSprints.length;
+
+          const streamProgress =
+            total === 0
+              ? 0
+              : Math.round(
+                  streamSprints.reduce(
+                    (sum: number, sprint: any) =>
+                      sum + getProgress(sprint.status),
+                    0
+                  ) / total
+                );
 
           return (
             <section key={streamName} className="space-y-4">
@@ -101,30 +191,71 @@ export default function TaskTable({ tasks }: Props) {
                 onClick={() => toggleStream(streamName)}
                 className={`${getStreamColor(
                   streamSprints[0]?.streams?.color
-                )} w-full text-white px-6 py-4 rounded-xl cursor-pointer flex justify-between items-center`}
+                )} w-full text-white px-6 py-5 rounded-xl cursor-pointer text-left`}
               >
-                <span className="text-2xl font-bold">
-                  {streamName}
-                </span>
+                <div className="flex justify-between items-start gap-6">
+                  <div className="w-full">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-2xl font-bold">
+                        {streamName}
+                      </span>
 
-                <span className="text-xl">
-                  {isOpen ? "▼" : "▶"}
-                </span>
+                      <span className="text-sm font-bold bg-white/20 px-3 py-1 rounded-full">
+                        {streamProgress}% Complete
+                      </span>
+                    </div>
+
+                    <div className="mt-4 h-3 bg-white/25 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-white rounded-full"
+                        style={{ width: `${streamProgress}%` }}
+                      />
+                    </div>
+
+                    <div className="flex gap-2 mt-3 flex-wrap">
+                      <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold">
+                        Planned: {planned}
+                      </span>
+
+                      <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
+                        In Progress: {inProgress}
+                      </span>
+
+                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
+                        Done: {done}
+                      </span>
+
+                      <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold">
+                        Blocked: {blocked}
+                      </span>
+                    </div>
+                  </div>
+
+                  <span className="text-xl mt-1">
+                    {isOpen ? "▼" : "▶"}
+                  </span>
+                </div>
               </button>
 
               {isOpen &&
-                streamSprints.map((task: SprintTask, index: number) => (
+                streamSprints.map((task: any, index: number) => (
                   <div
                     key={task.id || index}
                     className="bg-white rounded-xl shadow-sm border overflow-hidden"
                   >
                     <div className="px-6 py-5 border-b flex justify-between items-center gap-6">
                       <div className="flex-1">
-                        <h2 className="text-2xl font-bold">
-                          {task.title || `Sprint ${index + 1}`}
-                        </h2>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <h2 className="text-2xl font-bold">
+                            {task.title || `Sprint ${index + 1}`}
+                          </h2>
 
-                        <p className="text-gray-500">
+                          <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-semibold">
+                            {formatUpdated(task.updated_at || task.created_at)}
+                          </span>
+                        </div>
+
+                        <p className="text-gray-500 mt-1">
                           {formatDate(task.start_date)} -{" "}
                           {formatDate(task.end_date)}
                         </p>
@@ -169,7 +300,7 @@ export default function TaskTable({ tasks }: Props) {
                             Category
                           </th>
                           <th className="p-4 text-left text-xs uppercase font-bold text-gray-500">
-                            Resource
+                            Resources
                           </th>
                           <th className="p-4 text-left text-xs uppercase font-bold text-gray-500">
                             Task
@@ -187,29 +318,37 @@ export default function TaskTable({ tasks }: Props) {
                       </thead>
 
                       <tbody>
-                        <tr className="border-t hover:bg-slate-50 transition">
+                        <tr className="border-t hover:bg-slate-50 transition align-top">
                           <td className="p-4">{task.phase}</td>
                           <td className="p-4">{task.category}</td>
+
                           <td className="p-4 max-w-xs">
-  <div className="truncate" title={task.resources}>
-    {task.resources}
-  </div>
-</td>
-                          <td className="p-4 max-w-xs">
-  <div className="truncate font-medium" title={task.task}>
-    {task.task}
-  </div>
-</td>
-                          <td className="p-4 max-w-xs">
-  <div className="truncate" title={task.feature}>
-    {task.feature}
-  </div>
-</td>
-                         <td className="p-4 max-w-xs">
-  <div className="truncate" title={task.comments}>
-    {task.comments}
-  </div>
-</td>
+                            <div className="flex gap-2 flex-wrap">
+                              {getResourceChips(task.resources).map(
+                                (resource) => (
+                                  <span
+                                    key={resource}
+                                    className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold"
+                                  >
+                                    {resource}
+                                  </span>
+                                )
+                              )}
+                            </div>
+                          </td>
+
+                          <td className="p-4 max-w-sm text-sm">
+                            <RichTextDisplay text={task.task} />
+                          </td>
+
+                          <td className="p-4 max-w-sm text-sm">
+                            <RichTextDisplay text={task.feature} />
+                          </td>
+
+                          <td className="p-4 max-w-sm text-sm">
+                            <RichTextDisplay text={task.comments} />
+                          </td>
+
                           <td className="p-4">
                             <StatusBadge status={task.status} />
                           </td>

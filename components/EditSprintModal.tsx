@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import RichTextField from "./RichTextField";
 
 interface Props {
   sprint: any;
@@ -96,17 +97,15 @@ export default function EditSprintModal({
           />
 
           <div>
-            <textarea
-              rows={3}
-              maxLength={500}
-              className="border rounded-lg p-3 w-full"
-              value={form.resources}
-              placeholder="Resources"
-              onChange={(e) =>
-                setForm({ ...form, resources: e.target.value })
-              }
-            />
-
+            <RichTextField
+  label="Resources"
+  value={form.resources}
+  maxLength={1000}
+  rows={4}
+  onChange={(value) =>
+    setForm({ ...form, resources: value })
+  }
+/>
             <p className="text-xs text-gray-400 text-right">
               {form.resources.length}/500
             </p>

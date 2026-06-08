@@ -15,6 +15,20 @@ export default function PublicBacklog({
     return acc;
   }, {});
 
+if (!backlogItems.length) {
+  return (
+    <div className="bg-white rounded-xl border shadow-sm p-10 text-center">
+      <h2 className="text-2xl font-bold text-slate-800">
+        No backlog items found
+      </h2>
+
+      <p className="text-gray-500 mt-2">
+        Backlog items will appear here once added by the admin team.
+      </p>
+    </div>
+  );
+}
+
   return (
     <div className="space-y-6">
       {Object.entries(grouped).map(([streamName, items]: any) => (

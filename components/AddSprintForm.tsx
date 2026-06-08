@@ -3,13 +3,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
+import RichTextField from "./RichTextField";
 
 type Stream = {
   id: string;
   name: string;
 };
 
-export default function AddSprintForm() {
+export default function AddSprintForm({
+  onSuccess,
+}: {
+  onSuccess?: () => void;
+}) {
   const router = useRouter();
   const [streams, setStreams] = useState<Stream[]>([]);
 
@@ -107,9 +112,15 @@ export default function AddSprintForm() {
       return;
     }
 
-    alert("Sprint saved successfully");
+alert("Sprint saved successfully");
 
-    setForm({
+if (onSuccess) {
+  onSuccess();
+}
+
+setForm({
+
+    
       stream_id: streams[0]?.id || "",
       title: "",
       start_date: "",
@@ -216,17 +227,15 @@ export default function AddSprintForm() {
         />
 
         <div>
-          <textarea
-            required
-            rows={3}
-            maxLength={500}
-            className="border rounded-lg p-3 w-full"
-            placeholder="Resources"
-            value={form.resources}
-            onChange={(e) =>
-              setForm({ ...form, resources: e.target.value })
-            }
-          />
+          <RichTextField
+  label="Resources"
+  value={form.resources}
+  maxLength={1000}
+  rows={4}
+  onChange={(value) =>
+    setForm({ ...form, resources: value })
+  }
+/>
 
           <p className="text-xs text-gray-400 text-right">
             {form.resources.length}/500
@@ -234,17 +243,15 @@ export default function AddSprintForm() {
         </div>
 
         <div>
-          <textarea
-            required
-            rows={4}
-            maxLength={1000}
-            className="border rounded-lg p-3 w-full"
-            placeholder="Task"
-            value={form.task}
-            onChange={(e) =>
-              setForm({ ...form, task: e.target.value })
-            }
-          />
+          <RichTextField
+  label="Task"
+  value={form.task}
+  maxLength={1000}
+  rows={4}
+  onChange={(value) =>
+    setForm({ ...form, task: value })
+  }
+/>
 
           <p className="text-xs text-gray-400 text-right">
             {form.task.length}/1000
@@ -252,17 +259,15 @@ export default function AddSprintForm() {
         </div>
 
         <div>
-          <textarea
-            required
-            rows={4}
-            maxLength={1000}
-            className="border rounded-lg p-3 w-full"
-            placeholder="Feature"
-            value={form.feature}
-            onChange={(e) =>
-              setForm({ ...form, feature: e.target.value })
-            }
-          />
+      <RichTextField
+  label="Feature"
+  value={form.feature}
+  maxLength={1000}
+  rows={4}
+  onChange={(value) =>
+    setForm({ ...form, feature: value })
+  }
+/>
 
           <p className="text-xs text-gray-400 text-right">
             {form.feature.length}/1000
