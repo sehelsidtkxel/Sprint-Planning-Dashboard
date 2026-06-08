@@ -32,44 +32,46 @@ export default function Header() {
   }, []);
 
   return (
-    <div className="bg-slate-900 text-white rounded-2xl px-8 py-6 mb-8 shadow-sm">
-      <div className="flex items-center justify-between gap-6">
-        <div className="flex items-center gap-5">
-          <div className="bg-white rounded-xl px-4 py-3 shadow-sm flex items-center justify-center">
-            <Image
-              src="/logo.jpeg"
-              alt="Company Logo"
-              width={120}
-              height={50}
-              priority
-              className="object-contain"
-            />
+    <header className="w-full mb-8">
+      <div className="bg-slate-900 text-white rounded-2xl px-6 py-4 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-5">
+            <div className="bg-white rounded-xl p-2 shadow-sm">
+              <Image
+                src="/logo.jpeg"
+                alt="Signal Logo"
+                width={80}
+                height={50}
+                priority
+                className="object-contain"
+              />
+            </div>
+
+            <div>
+              <h1 className="text-3xl font-bold">
+                Sprint Release Hub
+              </h1>
+
+              <p className="text-slate-300">
+                Public Release Dashboard
+              </p>
+
+              <p className="text-sm text-slate-400 mt-1">
+                Last updated: {lastUpdated}
+              </p>
+            </div>
           </div>
 
-          <div>
-            <h1 className="text-3xl font-bold leading-tight">
-              Sprint Release Hub
-            </h1>
-
-            <p className="text-sm text-slate-300 mt-1">
-              Public Release Dashboard
-            </p>
-
-            <p className="text-xs text-slate-400 mt-1">
-              Last updated: {lastUpdated}
-            </p>
-          </div>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition"
+            >
+              Admin Panel
+            </Link>
+          )}
         </div>
-
-        {isAdmin && (
-          <Link
-            href="/admin"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold shadow-sm"
-          >
-            Admin Panel
-          </Link>
-        )}
       </div>
-    </div>
+    </header>
   );
 }
