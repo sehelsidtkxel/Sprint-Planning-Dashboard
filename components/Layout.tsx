@@ -1,4 +1,4 @@
-import Header from "./Header";
+
 
 export default function Layout({
   children,
@@ -7,7 +7,7 @@ export default function Layout({
 }) {
   return (
     <main className="min-h-screen bg-slate-100">
-      <Header />
+ 
       <div className="max-w-7xl mx-auto p-8">
         {children}
       </div>
