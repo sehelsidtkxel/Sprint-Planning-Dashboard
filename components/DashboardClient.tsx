@@ -8,7 +8,6 @@ import TaskTable from "./TaskTable";
 import PublicBacklog from "./PublicBacklog";
 import UpcomingReleaseHero from "./UpcomingReleaseHero";
 
-
 export default function DashboardClient({
   streams,
   tasks,
@@ -24,10 +23,17 @@ export default function DashboardClient({
   const filteredTasks =
     selectedStream === "all" || selectedStream === "backlog"
       ? tasks
-      : tasks.filter((task) => task.stream_id === selectedStream);
+      : tasks.filter(
+          (task) =>
+            task.stream_id === selectedStream ||
+            task.streams?.id === selectedStream ||
+            task.streams?.name === selectedStream
+        );
 
   const searchedTasks = filteredTasks.filter((task) => {
-    const query = search.toLowerCase();
+    const query = search.trim().toLowerCase();
+
+    if (!query) return true;
 
     return (
       task.title?.toLowerCase().includes(query) ||
@@ -43,7 +49,9 @@ export default function DashboardClient({
   });
 
   const searchedBacklog = backlogItems.filter((item) => {
-    const query = search.toLowerCase();
+    const query = search.trim().toLowerCase();
+
+    if (!query) return true;
 
     return (
       item.title?.toLowerCase().includes(query) ||

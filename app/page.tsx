@@ -1,4 +1,5 @@
 
+export const dynamic = "force-dynamic";
 import DashboardClient from "../components/DashboardClient";
 
 import { getSprintsFromSupabase } from "../lib/supabaseSprints";
