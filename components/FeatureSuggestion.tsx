@@ -6,7 +6,7 @@ import { supabase } from "../lib/supabase";
 const applications = [
   "EDGE",
   "Leads",
-  "DataWarehouse",
+  "DATA WAREHOUSE",
   "Set",
   "DevOps",
 ];
