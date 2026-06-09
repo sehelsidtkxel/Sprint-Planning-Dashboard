@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import StatusBadge from "./StatusBadge";
 import RichTextDisplay from "./RichTextDisplay";
+import FeatureSuggestion from "./FeatureSuggestion";
 import { SprintTask } from "../lib/types";
 
 interface Props {
@@ -86,6 +87,9 @@ function formatUpdated(dateString?: string) {
 }
 
 export default function TaskTable({ tasks }: Props) {
+  const [openStreams, setOpenStreams] = useState<string[]>([]);
+  const [showSuggestionForm, setShowSuggestionForm] = useState(false);
+
   const groupedStreams = tasks.reduce((acc: any, sprint: any) => {
     const streamName = sprint.streams?.name || "Unassigned";
 
@@ -98,7 +102,6 @@ export default function TaskTable({ tasks }: Props) {
   }, {});
 
   const streamNames = Object.keys(groupedStreams);
-  const [openStreams, setOpenStreams] = useState<string[]>([]);
 
   useEffect(() => {
     setOpenStreams(streamNames);
@@ -137,6 +140,17 @@ export default function TaskTable({ tasks }: Props) {
     <div className="space-y-8">
       <div className="flex justify-end gap-3">
         <button
+          onClick={() => setShowSuggestionForm(!showSuggestionForm)}
+          className={`px-4 py-2 rounded-lg font-semibold transition ${
+            showSuggestionForm
+              ? "bg-indigo-600 text-white"
+              : "bg-white border text-slate-700"
+          }`}
+        >
+          Feature Suggestion
+        </button>
+
+        <button
           onClick={expandAll}
           className="bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold"
         >
@@ -150,6 +164,8 @@ export default function TaskTable({ tasks }: Props) {
           Collapse All
         </button>
       </div>
+
+      {showSuggestionForm && <FeatureSuggestion />}
 
       {Object.entries(groupedStreams).map(
         ([streamName, streamSprints]: any) => {
