@@ -17,7 +17,11 @@ const featureImpacts = [
   "Strategic / Fundamentals",
 ];
 
-export default function FeatureSuggestion() {
+export default function FeatureSuggestion({
+  onSubmitted,
+}: {
+  onSubmitted?: () => void;
+}) {
   const [requesterName, setRequesterName] = useState("");
   const [requesterEmail, setRequesterEmail] = useState("");
   const [title, setTitle] = useState("");
@@ -85,6 +89,10 @@ export default function FeatureSuggestion() {
 
     setMessageType("success");
     setMessage("Suggestion submitted successfully.");
+
+    setTimeout(() => {
+      onSubmitted?.();
+    }, 1500);
   }
 
   return (
@@ -147,7 +155,6 @@ export default function FeatureSuggestion() {
             onChange={(e) => setApplication(e.target.value)}
           >
             <option value="">Select Application</option>
-
             {applications.map((app) => (
               <option key={app} value={app}>
                 {app}
@@ -165,7 +172,6 @@ export default function FeatureSuggestion() {
             }}
           >
             <option value="">Select Feature Impact</option>
-
             {featureImpacts.map((impact) => (
               <option key={impact} value={impact}>
                 {impact}

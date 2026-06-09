@@ -165,7 +165,11 @@ export default function TaskTable({ tasks }: Props) {
         </button>
       </div>
 
-      {showSuggestionForm && <FeatureSuggestion />}
+     {showSuggestionForm && (
+  <FeatureSuggestion
+    onSubmitted={() => setShowSuggestionForm(false)}
+  />
+)}
 
       {Object.entries(groupedStreams).map(
         ([streamName, streamSprints]: any) => {
