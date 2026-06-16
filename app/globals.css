@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Colors */
+  --ds-color-primary: 22 22 22;
+  --ds-color-primary-dark: 13 13 13;
+  --ds-color-primary-light: 42 42 42;
+  --ds-color-primary-foreground: 255 255 255;
+  --ds-color-surface: 248 250 252;
+  --ds-color-surface-paper: 255 255 255;
+  --ds-color-surface-muted: 241 245 249;
+  --ds-color-surface-hover: 248 250 252;
+  --ds-color-foreground: 15 23 42;
+  --ds-color-foreground-muted: 100 116 139;
+  --ds-color-foreground-subtle: 148 163 184;
+  --ds-color-foreground-inverse: 255 255 255;
+  --ds-color-border: 226 232 240;
+  --ds-color-border-strong: 203 213 225;
+  --ds-color-status-success: 21 128 61;
+  --ds-color-status-success-muted: 220 252 231;
+  --ds-color-status-warning: 249 115 22;
+  --ds-color-status-error: 220 38 38;
+  --ds-color-status-info: 29 78 216;
+  --ds-color-status-accent: 124 34 206;
+  --ds-color-brand-navy: 15 23 42;
+  --ds-color-brand-blue: 30 58 138;
+  --ds-color-brand-indigo: 55 48 163;
+  --ds-color-brand-blue-light: 191 219 254;
+
+  /* Typography */
+  --ds-font-family-sans: Arial, Helvetica, sans-serif;
+  --ds-font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --ds-font-size-display: 3rem;
+  --ds-font-size-h1: 2.25rem;
+  --ds-font-size-h2: 1.875rem;
+  --ds-font-size-h3: 1.5rem;
+  --ds-font-size-h4: 1.25rem;
+  --ds-font-size-body-lg: 1.125rem;
+  --ds-font-size-body: 1rem;
+  --ds-font-size-body-sm: 0.875rem;
+  --ds-font-size-caption: 0.75rem;
+  --ds-font-size-overline: 0.75rem;
+  --ds-line-height-display: 1.1;
+  --ds-line-height-heading: 1.25;
+  --ds-line-height-body: 1.5;
+  --ds-line-height-caption: 1.33;
+  --ds-line-height-overline: 1.33;
+  --ds-letter-spacing-tight: -0.025em;
+  --ds-letter-spacing-normal: 0;
+  --ds-letter-spacing-wide: 0.025em;
+  --ds-letter-spacing-wider: 0.05em;
+  --ds-letter-spacing-widest: 0.1em;
+
+  /* Radius & shadows */
+  --ds-radius-control: 4px;
+  --ds-radius-sm: 0.5rem;
+  --ds-radius-md: 0.75rem;
+  --ds-radius-lg: 1rem;
+  --ds-shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.05);
+  --ds-shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.08), 0 2px 4px -2px rgb(15 23 42 / 0.05);
+  --ds-shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.08), 0 4px 6px -4px rgb(15 23 42 / 0.05);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: rgb(var(--ds-color-surface));
+  color: rgb(var(--ds-color-foreground));
+  font-family: var(--ds-font-family-sans);
+  font-size: var(--ds-font-size-body);
+  line-height: var(--ds-line-height-body);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@layer components {
+  .typo-display {
+    font-size: var(--ds-font-size-display);
+    line-height: var(--ds-line-height-display);
+    letter-spacing: var(--ds-letter-spacing-tight);
+    font-weight: 700;
+  }
+
+  .typo-h1 {
+    font-size: var(--ds-font-size-h1);
+    line-height: var(--ds-line-height-heading);
+    letter-spacing: var(--ds-letter-spacing-tight);
+    font-weight: 700;
+  }
+
+  .typo-h2 {
+    font-size: var(--ds-font-size-h2);
+    line-height: var(--ds-line-height-heading);
+    letter-spacing: var(--ds-letter-spacing-tight);
+    font-weight: 700;
+  }
+
+  .typo-h3 {
+    font-size: var(--ds-font-size-h3);
+    line-height: var(--ds-line-height-heading);
+    font-weight: 700;
+  }
+
+  .typo-h4 {
+    font-size: var(--ds-font-size-h4);
+    line-height: var(--ds-line-height-heading);
+    font-weight: 600;
+  }
+
+  .typo-body-lg {
+    font-size: var(--ds-font-size-body-lg);
+    line-height: var(--ds-line-height-body);
+  }
+
+  .typo-body {
+    font-size: var(--ds-font-size-body);
+    line-height: var(--ds-line-height-body);
+  }
+
+  .typo-body-sm {
+    font-size: var(--ds-font-size-body-sm);
+    line-height: var(--ds-line-height-body);
+  }
+
+  .typo-caption {
+    font-size: var(--ds-font-size-caption);
+    line-height: var(--ds-line-height-caption);
+    color: rgb(var(--ds-color-foreground-muted));
+  }
+
+  .typo-overline {
+    font-size: var(--ds-font-size-overline);
+    line-height: var(--ds-line-height-overline);
+    letter-spacing: var(--ds-letter-spacing-widest);
+    text-transform: none;
+    font-weight: 600;
+    color: rgb(var(--ds-color-foreground-muted));
+  }
+
+  .ds-card {
+    background-color: rgb(var(--ds-color-surface-paper));
+    border: 1px solid rgb(var(--ds-color-border));
+    border-radius: var(--ds-radius-lg);
+    box-shadow: var(--ds-shadow-sm);
+  }
+}
