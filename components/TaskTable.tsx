@@ -147,7 +147,7 @@ export default function TaskTable({ tasks }: Props) {
               : "bg-white border text-slate-700"
           }`}
         >
-          Feature Suggestion
+          Feature Request
         </button>
 
         <button

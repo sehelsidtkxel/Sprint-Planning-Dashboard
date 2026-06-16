@@ -31,15 +31,15 @@ export default function BacklogPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab("suggestions")}
-            className={`px-5 py-3 rounded-xl font-semibold transition ${
-              activeTab === "suggestions"
-                ? "bg-purple-600 text-white"
-                : "bg-white border text-slate-700"
-            }`}
-          >
-            Feature Suggestions
-          </button>
+  onClick={() => setActiveTab("suggestions")}
+  className={`px-5 py-3 rounded-lg font-semibold ${
+    activeTab === "suggestions"
+      ? "bg-purple-600 text-white"
+      : "bg-white border text-slate-700"
+  }`}
+>
+  Feature Request
+</button>
         </div>
 
         {activeTab === "backlog" ? (

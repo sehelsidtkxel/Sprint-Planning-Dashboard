@@ -3,18 +3,10 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 
-const applications = [
-  "EDGE",
-  "Leads",
-  "DATA WAREHOUSE",
-  "Set",
-  "DevOps",
-];
-
 const featureImpacts = [
   "Increase Revenue",
   "Reduce Cost",
-  "Strategic / Fundamentals",
+  "Strategic / Fundamental",
 ];
 
 export default function FeatureSuggestion({
@@ -25,11 +17,11 @@ export default function FeatureSuggestion({
   const [requesterName, setRequesterName] = useState("");
   const [requesterEmail, setRequesterEmail] = useState("");
   const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [application, setApplication] = useState("");
+  const [requirementsText, setRequirementsText] = useState("");
   const [featureImpact, setFeatureImpact] = useState("");
   const [impactValue, setImpactValue] = useState("");
-  const [requirements, setRequirements] = useState("");
+  const [logicalReasoning, setLogicalReasoning] = useState("");
+  const [solution, setSolution] = useState("");
 
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] =
@@ -42,15 +34,18 @@ export default function FeatureSuggestion({
       featureImpact === "Increase Revenue" ||
       featureImpact === "Reduce Cost";
 
+    const needsLogicalReasoning =
+      needsImpactValue && impactValue.trim().length > 0;
+
     if (
       !requesterName.trim() ||
       !requesterEmail.trim() ||
       !title.trim() ||
-      !description.trim() ||
-      !application ||
+      !requirementsText.trim() ||
       !featureImpact ||
       (needsImpactValue && !impactValue.trim()) ||
-      !requirements.trim()
+      (needsLogicalReasoning && !logicalReasoning.trim()) ||
+      !solution.trim()
     ) {
       setMessageType("error");
       setMessage("Please complete all fields.");
@@ -64,11 +59,13 @@ export default function FeatureSuggestion({
           requester_name: requesterName,
           requester_email: requesterEmail,
           title,
-          details: description,
-          application,
+          details: requirementsText,
           feature_impact: featureImpact,
           impact_value: needsImpactValue ? impactValue : null,
-          requirements,
+          logical_reasoning: needsLogicalReasoning
+            ? logicalReasoning
+            : null,
+          requirements: solution,
         },
       ]);
 
@@ -81,14 +78,14 @@ export default function FeatureSuggestion({
     setRequesterName("");
     setRequesterEmail("");
     setTitle("");
-    setDescription("");
-    setApplication("");
+    setRequirementsText("");
     setFeatureImpact("");
     setImpactValue("");
-    setRequirements("");
+    setLogicalReasoning("");
+    setSolution("");
 
     setMessageType("success");
-    setMessage("Suggestion submitted successfully.");
+    setMessage("Feature request submitted successfully.");
 
     setTimeout(() => {
       onSubmitted?.();
@@ -142,82 +139,89 @@ export default function FeatureSuggestion({
           rows={4}
           maxLength={2000}
           className="border rounded-lg p-3 w-full whitespace-pre-wrap"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Requirements"
+          value={requirementsText}
+          onChange={(e) => setRequirementsText(e.target.value)}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          <select
-            required
-            className="border rounded-lg p-3 w-full"
-            value={application}
-            onChange={(e) => setApplication(e.target.value)}
-          >
-            <option value="">Select Application</option>
-            {applications.map((app) => (
-              <option key={app} value={app}>
-                {app}
-              </option>
-            ))}
-          </select>
+        <select
+          required
+          className="border rounded-lg p-3 w-full"
+          value={featureImpact}
+          onChange={(e) => {
+            setFeatureImpact(e.target.value);
+            setImpactValue("");
+            setLogicalReasoning("");
+          }}
+        >
+          <option value="">Select Feature Impact</option>
 
-          <select
-            required
-            className="border rounded-lg p-3 w-full"
-            value={featureImpact}
-            onChange={(e) => {
-              setFeatureImpact(e.target.value);
-              setImpactValue("");
-            }}
-          >
-            <option value="">Select Feature Impact</option>
-            {featureImpacts.map((impact) => (
-              <option key={impact} value={impact}>
-                {impact}
-              </option>
-            ))}
-          </select>
-        </div>
+          {featureImpacts.map((impact) => (
+            <option key={impact} value={impact}>
+              {impact}
+            </option>
+          ))}
+        </select>
 
         {featureImpact === "Increase Revenue" && (
           <input
             required
-            pattern="[a-zA-Z0-9 ]+"
             className="border rounded-lg p-3 w-full"
             placeholder="Revenue Impact Value"
             value={impactValue}
-            onChange={(e) => setImpactValue(e.target.value)}
+            onChange={(e) => {
+              setImpactValue(e.target.value);
+              setLogicalReasoning("");
+            }}
           />
         )}
 
         {featureImpact === "Reduce Cost" && (
           <input
             required
-            pattern="[a-zA-Z0-9 ]+"
             className="border rounded-lg p-3 w-full"
             placeholder="Cost Saving Value"
             value={impactValue}
-            onChange={(e) => setImpactValue(e.target.value)}
+            onChange={(e) => {
+              setImpactValue(e.target.value);
+              setLogicalReasoning("");
+            }}
           />
         )}
+
+        {(featureImpact === "Increase Revenue" ||
+          featureImpact === "Reduce Cost") &&
+          impactValue.trim() && (
+            <textarea
+              required
+              rows={4}
+              maxLength={2000}
+              className="border rounded-lg p-3 w-full whitespace-pre-wrap"
+              placeholder="Logical Reasoning"
+              value={logicalReasoning}
+              onChange={(e) => setLogicalReasoning(e.target.value)}
+            />
+          )}
 
         <textarea
           required
           rows={5}
           maxLength={3000}
           className="border rounded-lg p-3 w-full whitespace-pre-wrap"
-          placeholder="Requirements"
-          value={requirements}
-          onChange={(e) => setRequirements(e.target.value)}
+          placeholder="Solution"
+          value={solution}
+          onChange={(e) => setSolution(e.target.value)}
         />
 
         <p className="text-xs text-gray-400 text-right">
-          {requirements.length}/3000
+          {solution.length}/3000
         </p>
 
-        <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold">
-          Submit Suggestion
+        <button
+          type="submit"
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold"
+        >
+          Submit Feature Request
         </button>
       </form>
     </div>
