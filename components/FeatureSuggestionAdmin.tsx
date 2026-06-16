@@ -9,11 +9,17 @@ type Suggestion = {
   requester_email: string;
   title: string;
   details: string;
-  application: string;
+  application?: string;
   feature_impact: string;
   impact_value?: string;
+  logical_reasoning?: string;
   requirements: string;
   status: string;
+};
+
+type Stream = {
+  id: string;
+  name: string;
 };
 
 function getStatusStyle(status?: string) {
@@ -29,6 +35,11 @@ function getStatusStyle(status?: string) {
 
 export default function FeatureSuggestionAdmin() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [streams, setStreams] = useState<Stream[]>([]);
+  const [selectedStreams, setSelectedStreams] = useState<
+    Record<string, string>
+  >({});
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "All" | "Pending" | "Approved" | "Rejected"
@@ -48,20 +59,29 @@ export default function FeatureSuggestionAdmin() {
     setSuggestions(data || []);
   }
 
+  async function loadStreams() {
+    const { data, error } = await supabase
+      .from("streams")
+      .select("id, name")
+      .order("name");
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    setStreams(data || []);
+  }
+
   async function updateStatus(
     item: Suggestion,
     status: "Approved" | "Rejected"
   ) {
     if (status === "Approved") {
-      const { data: stream, error: streamError } = await supabase
-        .from("streams")
-        .select("id")
-        .ilike("name", `%${item.application}%`)
-        .limit(1)
-        .single();
+      const streamId = selectedStreams[item.id];
 
-      if (streamError || !stream) {
-        alert(`No matching stream found for ${item.application}`);
+      if (!streamId) {
+        alert("Please select a stream before approving this request.");
         return;
       }
 
@@ -69,14 +89,15 @@ export default function FeatureSuggestionAdmin() {
         .from("backlog_items")
         .insert([
           {
-            stream_id: stream.id,
+            stream_id: streamId,
             title: item.title,
             details: `${item.details}
 
 Feature Impact: ${item.feature_impact}
 Impact Value: ${item.impact_value || "-"}
+Logical Reasoning: ${item.logical_reasoning || "-"}
 
-Requirements:
+Solution:
 ${item.requirements}`,
             status: "Backlog",
           },
@@ -103,6 +124,7 @@ ${item.requirements}`,
 
   useEffect(() => {
     loadSuggestions();
+    loadStreams();
   }, []);
 
   const pendingCount = suggestions.filter(
@@ -129,8 +151,9 @@ ${item.requirements}`,
       item.title?.toLowerCase().includes(query) ||
       item.requester_name?.toLowerCase().includes(query) ||
       item.requester_email?.toLowerCase().includes(query) ||
-      item.application?.toLowerCase().includes(query) ||
-      item.feature_impact?.toLowerCase().includes(query);
+      item.feature_impact?.toLowerCase().includes(query) ||
+      item.details?.toLowerCase().includes(query) ||
+      item.requirements?.toLowerCase().includes(query);
 
     return matchesStatus && matchesSearch;
   });
@@ -140,8 +163,9 @@ ${item.requirements}`,
       <div className="grid grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl border shadow-sm p-5">
           <p className="text-sm text-slate-500 font-semibold">
-            Total Suggestions
+            Total Requests
           </p>
+
           <h3 className="text-3xl font-bold mt-2">
             {suggestions.length}
           </h3>
@@ -151,6 +175,7 @@ ${item.requirements}`,
           <p className="text-sm text-slate-500 font-semibold">
             Pending
           </p>
+
           <h3 className="text-3xl font-bold mt-2 text-yellow-600">
             {pendingCount}
           </h3>
@@ -160,6 +185,7 @@ ${item.requirements}`,
           <p className="text-sm text-slate-500 font-semibold">
             Approved
           </p>
+
           <h3 className="text-3xl font-bold mt-2 text-green-600">
             {approvedCount}
           </h3>
@@ -169,6 +195,7 @@ ${item.requirements}`,
           <p className="text-sm text-slate-500 font-semibold">
             Rejected
           </p>
+
           <h3 className="text-3xl font-bold mt-2 text-red-600">
             {rejectedCount}
           </h3>
@@ -179,7 +206,7 @@ ${item.requirements}`,
         <div className="p-5 border-b flex justify-between items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-slate-900">
-              Submitted Feature Suggestions
+              Submitted Feature Requests
             </h2>
 
             <p className="text-sm text-slate-500 mt-1">
@@ -209,7 +236,7 @@ ${item.requirements}`,
 
             <input
               className="border rounded-xl px-4 py-3 w-80"
-              placeholder="Search suggestions..."
+              placeholder="Search feature requests..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -221,7 +248,10 @@ ${item.requirements}`,
             const currentStatus = item.status || "Pending";
 
             return (
-              <div key={item.id} className="p-6 hover:bg-slate-50 transition">
+              <div
+                key={item.id}
+                className="p-6 hover:bg-slate-50 transition"
+              >
                 <div className="flex justify-between gap-6">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 flex-wrap">
@@ -242,24 +272,22 @@ ${item.requirements}`,
                       {item.requester_name} · {item.requester_email}
                     </p>
 
-                    <p className="mt-4 text-slate-700 whitespace-pre-wrap">
-                      {item.details}
-                    </p>
+                    <div className="mt-5 bg-slate-50 p-4 rounded-xl">
+                      <p className="text-xs uppercase font-bold text-slate-500">
+                        Requirements
+                      </p>
+
+                      <p className="mt-2 text-slate-700 whitespace-pre-wrap">
+                        {item.details}
+                      </p>
+                    </div>
 
                     <div className="grid grid-cols-3 gap-3 mt-5 text-sm">
                       <div className="bg-slate-50 p-3 rounded-xl">
                         <p className="text-xs uppercase font-bold text-slate-500">
-                          Application
-                        </p>
-                        <p className="font-semibold mt-1">
-                          {item.application || "-"}
-                        </p>
-                      </div>
-
-                      <div className="bg-slate-50 p-3 rounded-xl">
-                        <p className="text-xs uppercase font-bold text-slate-500">
                           Feature Impact
                         </p>
+
                         <p className="font-semibold mt-1">
                           {item.feature_impact || "-"}
                         </p>
@@ -269,15 +297,26 @@ ${item.requirements}`,
                         <p className="text-xs uppercase font-bold text-slate-500">
                           Impact Value
                         </p>
+
                         <p className="font-semibold mt-1">
                           {item.impact_value || "-"}
+                        </p>
+                      </div>
+
+                      <div className="bg-slate-50 p-3 rounded-xl">
+                        <p className="text-xs uppercase font-bold text-slate-500">
+                          Logical Reasoning
+                        </p>
+
+                        <p className="font-semibold mt-1 whitespace-pre-wrap">
+                          {item.logical_reasoning || "-"}
                         </p>
                       </div>
                     </div>
 
                     <div className="mt-5 bg-slate-50 p-4 rounded-xl">
                       <p className="text-xs uppercase font-bold text-slate-500">
-                        Requirements
+                        Solution
                       </p>
 
                       <p className="mt-2 whitespace-pre-wrap text-slate-700">
@@ -287,7 +326,26 @@ ${item.requirements}`,
                   </div>
 
                   {currentStatus === "Pending" && (
-                    <div className="flex flex-col gap-3 shrink-0">
+                    <div className="flex flex-col gap-3 shrink-0 w-64">
+                      <select
+                        className="border rounded-xl px-3 py-2"
+                        value={selectedStreams[item.id] || ""}
+                        onChange={(e) =>
+                          setSelectedStreams({
+                            ...selectedStreams,
+                            [item.id]: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">Select Stream</option>
+
+                        {streams.map((stream) => (
+                          <option key={stream.id} value={stream.id}>
+                            {stream.name}
+                          </option>
+                        ))}
+                      </select>
+
                       <button
                         type="button"
                         onClick={() => updateStatus(item, "Approved")}
@@ -313,7 +371,7 @@ ${item.requirements}`,
           {filteredSuggestions.length === 0 && (
             <div className="p-10 text-center">
               <h3 className="text-xl font-bold text-slate-800">
-                No feature suggestions found
+                No feature requests found
               </h3>
 
               <p className="text-slate-500 mt-2">
