@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -11,6 +12,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { Trash2 } from "lucide-react";
+import { AppIcon } from "./icons";
 import { supabase } from "../lib/supabase";
 import { UIButton, UIInput } from "./ui";
 
@@ -79,6 +82,10 @@ export default function FeatureSuggestionAdmin() {
   const [approveError, setApproveError] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [deleteTargets, setDeleteTargets] = useState<Suggestion[] | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
   async function loadSuggestions() {
     if (!supabase) return;
 
@@ -92,7 +99,11 @@ export default function FeatureSuggestionAdmin() {
       return;
     }
 
-    setSuggestions(data || []);
+    const loaded: Suggestion[] = data || [];
+    setSuggestions(loaded);
+    setSelectedIds((current) =>
+      current.filter((id) => loaded.some((item) => item.id === id))
+    );
   }
 
   async function loadStreams() {
@@ -208,6 +219,62 @@ export default function FeatureSuggestionAdmin() {
     loadSuggestions();
   }
 
+  function toggleSelected(id: string) {
+    setSelectedIds((current) =>
+      current.includes(id)
+        ? current.filter((selectedId) => selectedId !== id)
+        : [...current, id]
+    );
+  }
+
+  function closeDeleteDialog() {
+    if (deleting) return;
+    setDeleteTargets(null);
+  }
+
+  async function confirmDelete() {
+    if (!supabase || !deleteTargets?.length) return;
+
+    const ids = deleteTargets.map((item) => item.id);
+    setDeleting(true);
+
+    // Supabase reports no error when row-level security blocks a delete; it
+    // just deletes nothing, so compare the returned rows with what was asked.
+    const { data, error } = await supabase
+      .from("feature_suggestions")
+      .delete()
+      .in("id", ids)
+      .select("id");
+
+    setDeleting(false);
+    setDeleteTargets(null);
+
+    if (error) {
+      setNotice({ type: "error", text: `Could not delete: ${error.message}` });
+      return;
+    }
+
+    const deletedIds = (data || []).map((row: { id: string }) => row.id);
+    setSelectedIds((current) => current.filter((id) => !deletedIds.includes(id)));
+
+    if (deletedIds.length < ids.length) {
+      setNotice({
+        type: "error",
+        text: `Only ${deletedIds.length} of ${ids.length} feature request(s) were deleted. Your database security settings may not allow deleting feature requests.`,
+      });
+    } else {
+      setNotice({
+        type: "success",
+        text:
+          ids.length === 1
+            ? `"${deleteTargets[0].title}" was deleted.`
+            : `${ids.length} feature requests deleted.`,
+      });
+    }
+
+    loadSuggestions();
+  }
+
   useEffect(() => {
     loadSuggestions();
     loadStreams();
@@ -242,6 +309,24 @@ export default function FeatureSuggestionAdmin() {
 
     return matchesStatus && matchesSearch;
   });
+
+  const allVisibleSelected =
+    filteredSuggestions.length > 0 &&
+    filteredSuggestions.every((item) => selectedIds.includes(item.id));
+
+  function toggleSelectAllVisible() {
+    const visibleIds = filteredSuggestions.map((item) => item.id);
+
+    setSelectedIds((current) =>
+      allVisibleSelected
+        ? current.filter((id) => !visibleIds.includes(id))
+        : Array.from(new Set([...current, ...visibleIds]))
+    );
+  }
+
+  const selectedSuggestions = suggestions.filter((item) =>
+    selectedIds.includes(item.id)
+  );
 
   return (
     <div className="space-y-6">
@@ -331,13 +416,62 @@ export default function FeatureSuggestionAdmin() {
           </div>
         </div>
 
+        <div className="px-6 py-3 border-b bg-slate-50 flex items-center justify-between gap-4 flex-wrap min-h-[56px]">
+          <label className="flex items-center gap-3 text-sm font-semibold text-slate-700 cursor-pointer">
+            <input
+              type="checkbox"
+              className="h-4 w-4 accent-slate-900 cursor-pointer"
+              checked={allVisibleSelected}
+              onChange={toggleSelectAllVisible}
+              disabled={filteredSuggestions.length === 0}
+            />
+            Select all shown ({filteredSuggestions.length})
+          </label>
+
+          {selectedIds.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-semibold text-slate-700">
+                {selectedIds.length} selected
+              </span>
+              <UIButton
+                variant="danger"
+                size="sm"
+                onClick={() => setDeleteTargets(selectedSuggestions)}
+              >
+                <AppIcon icon={Trash2} size="sm" />
+                Delete selected
+              </UIButton>
+              <UIButton
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedIds([])}
+              >
+                Clear
+              </UIButton>
+            </div>
+          )}
+        </div>
+
         <div className="divide-y">
           {filteredSuggestions.map((item) => {
             const currentStatus = item.status || "Pending";
 
             return (
-              <div key={item.id} className="p-6 hover:bg-slate-50 transition">
+              <div
+                key={item.id}
+                className={`p-6 transition ${
+                  selectedIds.includes(item.id) ? "bg-blue-50/60" : "hover:bg-slate-50"
+                }`}
+              >
                 <div className="flex justify-between gap-6">
+                  <input
+                    type="checkbox"
+                    aria-label={`Select ${item.title}`}
+                    className="mt-2 h-4 w-4 shrink-0 accent-slate-900 cursor-pointer"
+                    checked={selectedIds.includes(item.id)}
+                    onChange={() => toggleSelected(item.id)}
+                  />
+
                   <div className="flex-1">
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="text-xl font-bold text-slate-900">
@@ -420,24 +554,35 @@ export default function FeatureSuggestionAdmin() {
                     </div>
                   </div>
 
-                  {currentStatus === "Pending" && (
-                    <div className="flex flex-col gap-3 shrink-0">
-                      <UIButton
-                        onClick={() => openApproveDialog(item)}
-                        variant="primary"
-                        className="bg-green-600 hover:bg-green-700 focus:ring-green-100"
-                      >
-                        Approve
-                      </UIButton>
+                  <div className="flex flex-col gap-3 shrink-0 w-28">
+                    {currentStatus === "Pending" && (
+                      <>
+                        <UIButton
+                          onClick={() => openApproveDialog(item)}
+                          variant="primary"
+                          className="bg-green-600 hover:bg-green-700 focus:ring-green-100"
+                        >
+                          Approve
+                        </UIButton>
 
-                      <UIButton
-                        onClick={() => rejectSuggestion(item)}
-                        variant="danger"
-                      >
-                        Reject
-                      </UIButton>
-                    </div>
-                  )}
+                        <UIButton
+                          onClick={() => rejectSuggestion(item)}
+                          variant="danger"
+                        >
+                          Reject
+                        </UIButton>
+                      </>
+                    )}
+
+                    <UIButton
+                      onClick={() => setDeleteTargets([item])}
+                      variant="ghost"
+                      className="text-red-600 hover:bg-red-50 border-red-200"
+                    >
+                      <AppIcon icon={Trash2} size="sm" />
+                      Delete
+                    </UIButton>
+                  </div>
                 </div>
               </div>
             );
@@ -515,6 +660,54 @@ export default function FeatureSuggestionAdmin() {
             disabled={saving || !approveStreamId || !approveReleaseDate}
           >
             {saving ? "Approving..." : "Approve & add to backlog"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(deleteTargets)}
+        onClose={closeDeleteDialog}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>
+          {deleteTargets?.length === 1
+            ? "Delete feature request?"
+            : `Delete ${deleteTargets?.length} feature requests?`}
+        </DialogTitle>
+
+        <DialogContent>
+          <Stack spacing={1.5}>
+            <Box component="ul" sx={{ m: 0, pl: 2.5, color: "text.primary" }}>
+              {deleteTargets?.slice(0, 5).map((item) => (
+                <li key={item.id}>
+                  <Typography sx={{ fontWeight: 600 }}>{item.title}</Typography>
+                </li>
+              ))}
+            </Box>
+            {deleteTargets && deleteTargets.length > 5 && (
+              <Typography color="text.secondary">
+                and {deleteTargets.length - 5} more
+              </Typography>
+            )}
+            <Typography color="text.secondary">
+              This can&apos;t be undone. Backlog items created from approved
+              requests are not deleted.
+            </Typography>
+          </Stack>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button onClick={closeDeleteDialog} disabled={deleting} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={confirmDelete}
+            disabled={deleting}
+          >
+            {deleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>
