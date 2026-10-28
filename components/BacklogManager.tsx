@@ -15,6 +15,7 @@ import Typography from "@mui/material/Typography";
 import SectionCard from "./mui/SectionCard";
 import { ChevronDown, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { AppIcon } from "./icons";
+import { formatLocalDate } from "../lib/dates";
 
 type Stream = {
   id: string;
@@ -27,6 +28,7 @@ type BacklogItem = {
   title: string;
   details: string;
   status: string;
+  target_date?: string | null;
 };
 
 export default function BacklogManager() {
@@ -36,6 +38,7 @@ export default function BacklogManager() {
 
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
+  const [releaseDate, setReleaseDate] = useState("");
   const [selectedStream, setSelectedStream] = useState("");
 
   const [editingItem, setEditingItem] = useState<BacklogItem | null>(null);
@@ -101,6 +104,7 @@ const [showForm, setShowForm] = useState(false);
         stream_id: selectedStream,
         title,
         details,
+        target_date: releaseDate || null,
         status: "Backlog",
       },
     ]);
@@ -112,6 +116,7 @@ const [showForm, setShowForm] = useState(false);
 
     setTitle("");
     setDetails("");
+    setReleaseDate("");
     setShowForm(false);
 
     loadBacklog();
@@ -122,7 +127,8 @@ const [showForm, setShowForm] = useState(false);
     setSelectedStream(item.stream_id);
     setTitle(item.title);
     setDetails(item.details);
-setShowForm(true);
+    setReleaseDate(item.target_date?.slice(0, 10) || "");
+    setShowForm(true);
 
     window.scrollTo({
       top: 0,
@@ -147,6 +153,7 @@ setShowForm(true);
         stream_id: selectedStream,
         title,
         details,
+        target_date: releaseDate || null,
       })
       .eq("id", editingItem.id);
 
@@ -158,6 +165,8 @@ setShowForm(true);
     setEditingItem(null);
     setTitle("");
     setDetails("");
+    setReleaseDate("");
+    setShowForm(false);
 
     loadBacklog();
   }
@@ -166,6 +175,7 @@ setShowForm(true);
     setEditingItem(null);
     setTitle("");
     setDetails("");
+    setReleaseDate("");
   }
 
   async function deleteItem(id: string) {
@@ -269,6 +279,15 @@ setShowForm(true);
                 label="Backlog item title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+              />
+
+              <TextField
+                type="date"
+                label="Release Date"
+                value={releaseDate}
+                onChange={(e) => setReleaseDate(e.target.value)}
+                slotProps={{ inputLabel: { shrink: true } }}
+                helperText="Optional"
               />
 
               <RichTextField
@@ -379,6 +398,13 @@ setShowForm(true);
                                   color="primary"
                                   variant="outlined"
                                 />
+                                {item.target_date && (
+                                  <Chip
+                                    size="small"
+                                    variant="outlined"
+                                    label={`Release: ${formatLocalDate(item.target_date)}`}
+                                  />
+                                )}
                               </Stack>
 
                               <Box sx={{ mt: 1.5, color: "text.secondary" }}>
