@@ -23,11 +23,8 @@ import RichTextDisplay from "./RichTextDisplay";
 import FeatureSuggestion from "./FeatureSuggestion";
 import SectionCard from "./mui/SectionCard";
 import { SprintTask } from "../lib/types";
-import {
-  getProgressLabel,
-  getSprintProgress,
-  parseLocalDate,
-} from "../lib/sprintProgress";
+import { parseLocalDate } from "../lib/dates";
+import { getProgressLabel, getSprintProgress } from "../lib/sprintProgress";
 
 interface Props {
   tasks: SprintTask[];

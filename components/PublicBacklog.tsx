@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import SectionCard from "./mui/SectionCard";
+import { formatLocalDate } from "../lib/dates";
 
 export default function PublicBacklog({
   backlogItems,
@@ -53,7 +54,18 @@ export default function PublicBacklog({
                   bgcolor: "grey.50",
                 }}
               >
-                <Typography sx={{ fontWeight: 600 }}>{item.title}</Typography>
+                <Stack
+                  direction="row"
+                  spacing={1.5}
+                  sx={{ alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" }}
+                >
+                  <Typography sx={{ fontWeight: 600 }}>{item.title}</Typography>
+                  {item.target_date && (
+                    <Typography variant="body2" sx={{ color: "#64748b", fontWeight: 600 }}>
+                      Target: {formatLocalDate(item.target_date)}
+                    </Typography>
+                  )}
+                </Stack>
                 <Typography color="text.secondary" sx={{ mt: 0.5 }}>
                   {item.details}
                 </Typography>

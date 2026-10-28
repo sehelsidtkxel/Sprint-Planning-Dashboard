@@ -1,3 +1,5 @@
+import { parseLocalDate } from "./dates";
+
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 export type SprintProgress = {
@@ -7,22 +9,6 @@ export type SprintProgress = {
   totalDays: number | null;
   state: "done" | "not-started" | "active" | "ended" | "no-dates";
 };
-
-/**
- * Parses a "YYYY-MM-DD" (or ISO timestamp) string as a local calendar date.
- * `new Date("2026-11-13")` is parsed as UTC midnight, which shifts the day
- * in timezones behind UTC, so date-only values are built from their parts.
- */
-export function parseLocalDate(value?: string | null): Date | null {
-  if (!value) return null;
-
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-
-  if (!match) return null;
-
-  const [, year, month, day] = match;
-  return new Date(Number(year), Number(month) - 1, Number(day));
-}
 
 function daysBetween(from: Date, to: Date) {
   // Math.round absorbs the 1-hour shift on daylight-saving changes.
