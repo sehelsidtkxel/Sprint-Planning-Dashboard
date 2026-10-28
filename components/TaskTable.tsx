@@ -23,28 +23,22 @@ import RichTextDisplay from "./RichTextDisplay";
 import FeatureSuggestion from "./FeatureSuggestion";
 import SectionCard from "./mui/SectionCard";
 import { SprintTask } from "../lib/types";
+import {
+  getProgressLabel,
+  getSprintProgress,
+  parseLocalDate,
+} from "../lib/sprintProgress";
 
 interface Props {
   tasks: SprintTask[];
 }
 
-function getProgress(status?: string) {
-  switch (status) {
-    case "Done":
-      return 100;
-    case "In Progress":
-      return 60;
-    case "Blocked":
-      return 10;
-    default:
-      return 20;
-  }
-}
-
 function formatDate(dateString?: string) {
-  if (!dateString) return "-";
+  const date = parseLocalDate(dateString);
 
-  return new Date(dateString).toLocaleDateString("en-GB", {
+  if (!date) return "-";
+
+  return date.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -52,9 +46,10 @@ function formatDate(dateString?: string) {
 }
 
 function getReleaseWeek(dateValue?: string) {
-  if (!dateValue) return "Not set";
+  const date = parseLocalDate(dateValue);
 
-  const date = new Date(dateValue);
+  if (!date) return "Not set";
+
   const month = date.toLocaleString("en-US", { month: "short" });
   const day = date.getDate();
   const week = Math.ceil(day / 7);
@@ -183,6 +178,13 @@ function SprintStatBadge({ label, count }: { label: string; count: number }) {
 export default function TaskTable({ tasks }: Props) {
   const [openStreams, setOpenStreams] = useState<string[]>([]);
   const [showSuggestionForm, setShowSuggestionForm] = useState(false);
+  // Resolved in the browser so progress uses the viewer's local date rather
+  // than the server's (UTC on Vercel), which also avoids hydration mismatches.
+  const [today, setToday] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setToday(new Date());
+  }, []);
 
   const groupedStreams = tasks.reduce((acc: any, sprint: any) => {
     const streamName = sprint.streams?.name || "Unassigned";
@@ -287,12 +289,12 @@ export default function TaskTable({ tasks }: Props) {
           const total = streamSprints.length;
 
           const streamProgress =
-            total === 0
+            total === 0 || !today
               ? 0
               : Math.round(
                   streamSprints.reduce(
                     (sum: number, sprint: any) =>
-                      sum + getProgress(sprint.status),
+                      sum + getSprintProgress(sprint, today).percent,
                     0
                   ) / total
                 );
@@ -397,7 +399,10 @@ export default function TaskTable({ tasks }: Props) {
               </AccordionSummary>
 
               <AccordionDetails sx={{ px: 3, py: 2, bgcolor: "#f8fafc" }}>
-                {streamSprints.map((task: any, index: number) => (
+                {streamSprints.map((task: any, index: number) => {
+                  const progress = today ? getSprintProgress(task, today) : null;
+
+                  return (
                   <SectionCard
                     key={task.id || index}
                     sx={{
@@ -442,7 +447,7 @@ export default function TaskTable({ tasks }: Props) {
                           <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
                             <LinearProgress
                               variant="determinate"
-                              value={getProgress(task.status)}
+                              value={progress?.percent ?? 0}
                               sx={{
                                 flex: 1,
                                 height: 8,
@@ -458,7 +463,9 @@ export default function TaskTable({ tasks }: Props) {
                               variant="body2"
                               sx={{ fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap" }}
                             >
-                              {getProgress(task.status)}%
+                              {progress
+                                ? `${progress.percent}% · ${getProgressLabel(progress)}`
+                                : "–"}
                             </Typography>
                           </Stack>
                         </Box>
@@ -525,7 +532,8 @@ export default function TaskTable({ tasks }: Props) {
                       </Table>
                     </TableContainer>
                   </SectionCard>
-                ))}
+                  );
+                })}
               </AccordionDetails>
             </Accordion>
           );
