@@ -1,7 +1,9 @@
 import { supabase } from "./supabase";
 
 export async function getStreams() {
-  if (!supabase) return [];
+  if (!supabase) {
+    throw new Error("Supabase is not configured");
+  }
 
   const { data, error } = await supabase
     .from("streams")
@@ -9,8 +11,8 @@ export async function getStreams() {
     .order("name");
 
   if (error) {
-    console.error(error);
-    return [];
+    console.error("Failed to load streams:", error.message);
+    throw new Error(`Failed to load streams: ${error.message}`);
   }
 
   return data || [];

@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
+import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import Header from "./Header";
@@ -14,13 +18,16 @@ export default function DashboardClient({
   streams,
   tasks,
   backlogItems,
+  loadError = false,
 }: {
   streams: any[];
   tasks: any[];
   backlogItems: any[];
+  loadError?: boolean;
 }) {
   const [selectedStream, setSelectedStream] = useState("all");
   const [search, setSearch] = useState("");
+  const router = useRouter();
 
   const selectedStreamId = String(selectedStream);
   const selectedStreamMeta = streams.find(
@@ -73,32 +80,62 @@ export default function DashboardClient({
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
       <Header search={search} onSearchChange={setSearch} />
 
-      <UpcomingReleaseHero tasks={tasks} />
-
-      {selectedStream !== "backlog" && (
-        <Box sx={{ width: "100%" }}>
-          <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 }, py: 0 }}>
-            <DashboardStats tasks={searchedTasks} />
-          </Container>
-          <Box sx={{ width: "100%", height: "1px", bgcolor: "#cbd5e1" }} />
-        </Box>
+      {loadError && (
+        <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 }, py: 4 }}>
+          <Alert
+            severity="warning"
+            variant="outlined"
+            sx={{ bgcolor: "#ffffff", alignItems: "center" }}
+            action={
+              <Button
+                color="inherit"
+                variant="outlined"
+                size="small"
+                onClick={() => router.refresh()}
+              >
+                Try again
+              </Button>
+            }
+          >
+            <AlertTitle sx={{ fontWeight: 700 }}>
+              Data is temporarily unavailable
+            </AlertTitle>
+            We couldn&apos;t load the latest sprints and backlog. Please try
+            again in a few minutes.
+          </Alert>
+        </Container>
       )}
 
-      <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 }, pt: 3, pb: 3 }}>
-        <StreamTabs
-          streams={streams}
-          tasks={tasks}
-          backlogCount={backlogItems.length}
-          selectedStream={selectedStream}
-          onSelectStream={setSelectedStream}
-        />
+      {!loadError && (
+        <>
+          <UpcomingReleaseHero tasks={tasks} />
 
-        {selectedStream === "backlog" ? (
-          <PublicBacklog backlogItems={searchedBacklog} />
-        ) : (
-          <TaskTable tasks={searchedTasks} />
-        )}
-      </Container>
+          {selectedStream !== "backlog" && (
+            <Box sx={{ width: "100%" }}>
+              <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 }, py: 0 }}>
+                <DashboardStats tasks={searchedTasks} />
+              </Container>
+              <Box sx={{ width: "100%", height: "1px", bgcolor: "#cbd5e1" }} />
+            </Box>
+          )}
+
+          <Container maxWidth="xl" sx={{ px: { xs: 2, md: 4 }, pt: 3, pb: 3 }}>
+            <StreamTabs
+              streams={streams}
+              tasks={tasks}
+              backlogCount={backlogItems.length}
+              selectedStream={selectedStream}
+              onSelectStream={setSelectedStream}
+            />
+
+            {selectedStream === "backlog" ? (
+              <PublicBacklog backlogItems={searchedBacklog} />
+            ) : (
+              <TaskTable tasks={searchedTasks} />
+            )}
+          </Container>
+        </>
+      )}
     </Box>
   );
 }

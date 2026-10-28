@@ -6,15 +6,28 @@ import { getStreams } from "../lib/getStreams";
 import { getBacklogItems } from "../lib/getBacklogItems";
 
 export default async function HomePage() {
-  const tasks = await getSprintsFromSupabase();
-  const streams = await getStreams();
-  const backlogItems = await getBacklogItems();
+  let tasks: any[] = [];
+  let streams: any[] = [];
+  let backlogItems: any[] = [];
+  let loadError = false;
+
+  try {
+    [tasks, streams, backlogItems] = await Promise.all([
+      getSprintsFromSupabase(),
+      getStreams(),
+      getBacklogItems(),
+    ]);
+  } catch {
+    // Details are logged by the loaders; the page shows a friendly message.
+    loadError = true;
+  }
 
   return (
     <DashboardClient
       streams={streams}
       tasks={tasks}
       backlogItems={backlogItems}
+      loadError={loadError}
     />
   );
 }

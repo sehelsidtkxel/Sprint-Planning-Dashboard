@@ -1,7 +1,9 @@
 import { supabase } from "./supabase";
 
 export async function getSprintsFromSupabase() {
-  if (!supabase) return [];
+  if (!supabase) {
+    throw new Error("Supabase is not configured");
+  }
 
   const { data, error } = await supabase
     .from("sprints")
@@ -16,8 +18,8 @@ export async function getSprintsFromSupabase() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
-    return [];
+    console.error("Failed to load sprints:", error.message);
+    throw new Error(`Failed to load sprints: ${error.message}`);
   }
 
   return data || [];

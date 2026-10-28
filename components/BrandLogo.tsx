@@ -1,4 +1,4 @@
-export default function SignalLogo({ height = 24, color = "#161616" }: { height?: number; color?: string }) {
+export default function BrandLogo({ height = 24, color = "#161616" }: { height?: number; color?: string }) {
   return (
     <svg
       width="513"
@@ -7,7 +7,8 @@ export default function SignalLogo({ height = 24, color = "#161616" }: { height?
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       style={{ height, width: "auto", display: "block" }}
-      aria-label="Signal Sprint Release Hub"
+      role="img"
+      aria-label="framebrand"
     >
       <path d="M0 58.44V9.6052C0 4.33556 4.2289 0.0698242 9.43813 0.0698242H58.3043V17.5819L46.1687 17.569C44.8616 17.569 43.7371 18.6307 43.7371 19.9521V29.2405L58.3043 29.2533V46.7012L43.7371 46.6819V58.4432H0V58.44Z" fill={color}/>
       <path d="M488.632 59.2318C477.368 59.2318 470.146 50.6554 470.146 38.66C470.146 26.6646 477.361 18.1748 488.632 18.1748C497.439 18.1748 502.991 22.6202 505.608 28.7397V0.0629883H512.592V58.4364H505.608V48.6701C502.911 54.9436 497.282 59.235 488.632 59.235V59.2318ZM477.207 38.66C477.207 48.5065 483.317 53.1924 490.935 53.1924C498.554 53.1924 505.371 48.3493 505.371 38.66C505.371 28.9707 498.627 24.2046 490.935 24.2046C483.243 24.2046 477.207 28.8135 477.207 38.66Z" fill={color}/>
