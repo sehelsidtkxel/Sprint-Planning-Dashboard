@@ -57,7 +57,7 @@ function getReleaseWeek(dateValue?: string) {
   return `${month} ${suffix} week (${date.getFullYear()})`;
 }
 
-function getStreamPastelTheme(color?: string) {
+export function getStreamPastelTheme(color?: string) {
   switch (color?.toLowerCase()) {
     case "green":
       return {

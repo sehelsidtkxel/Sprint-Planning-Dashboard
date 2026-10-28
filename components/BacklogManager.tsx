@@ -38,7 +38,7 @@ export default function BacklogManager() {
 
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
-  const [targetDate, setTargetDate] = useState("");
+  const [releaseDate, setReleaseDate] = useState("");
   const [selectedStream, setSelectedStream] = useState("");
 
   const [editingItem, setEditingItem] = useState<BacklogItem | null>(null);
@@ -104,7 +104,7 @@ const [showForm, setShowForm] = useState(false);
         stream_id: selectedStream,
         title,
         details,
-        target_date: targetDate || null,
+        target_date: releaseDate || null,
         status: "Backlog",
       },
     ]);
@@ -116,7 +116,7 @@ const [showForm, setShowForm] = useState(false);
 
     setTitle("");
     setDetails("");
-    setTargetDate("");
+    setReleaseDate("");
     setShowForm(false);
 
     loadBacklog();
@@ -127,7 +127,7 @@ const [showForm, setShowForm] = useState(false);
     setSelectedStream(item.stream_id);
     setTitle(item.title);
     setDetails(item.details);
-    setTargetDate(item.target_date?.slice(0, 10) || "");
+    setReleaseDate(item.target_date?.slice(0, 10) || "");
     setShowForm(true);
 
     window.scrollTo({
@@ -153,7 +153,7 @@ const [showForm, setShowForm] = useState(false);
         stream_id: selectedStream,
         title,
         details,
-        target_date: targetDate || null,
+        target_date: releaseDate || null,
       })
       .eq("id", editingItem.id);
 
@@ -165,7 +165,7 @@ const [showForm, setShowForm] = useState(false);
     setEditingItem(null);
     setTitle("");
     setDetails("");
-    setTargetDate("");
+    setReleaseDate("");
     setShowForm(false);
 
     loadBacklog();
@@ -175,7 +175,7 @@ const [showForm, setShowForm] = useState(false);
     setEditingItem(null);
     setTitle("");
     setDetails("");
-    setTargetDate("");
+    setReleaseDate("");
   }
 
   async function deleteItem(id: string) {
@@ -283,9 +283,9 @@ const [showForm, setShowForm] = useState(false);
 
               <TextField
                 type="date"
-                label="Target Date"
-                value={targetDate}
-                onChange={(e) => setTargetDate(e.target.value)}
+                label="Release Date"
+                value={releaseDate}
+                onChange={(e) => setReleaseDate(e.target.value)}
                 slotProps={{ inputLabel: { shrink: true } }}
                 helperText="Optional"
               />
@@ -402,7 +402,7 @@ const [showForm, setShowForm] = useState(false);
                                   <Chip
                                     size="small"
                                     variant="outlined"
-                                    label={`Target: ${formatLocalDate(item.target_date)}`}
+                                    label={`Release: ${formatLocalDate(item.target_date)}`}
                                   />
                                 )}
                               </Stack>
