@@ -288,17 +288,6 @@ export default function TaskTable({ tasks }: Props) {
           ).length;
           const total = streamSprints.length;
 
-          const streamProgress =
-            total === 0 || !today
-              ? 0
-              : Math.round(
-                  streamSprints.reduce(
-                    (sum: number, sprint: any) =>
-                      sum + getSprintProgress(sprint, today).percent,
-                    0
-                  ) / total
-                );
-
           const streamTheme = getStreamPastelTheme(streamSprints[0]?.streams?.color);
 
           return (
@@ -354,35 +343,11 @@ export default function TaskTable({ tasks }: Props) {
                     {streamName}
                   </Typography>
 
-                  {/* Progress bar with inline percentage */}
-                  <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
-                    <LinearProgress
-                      variant="determinate"
-                      value={streamProgress}
-                      sx={{
-                        flex: 1,
-                        height: 8,
-                        borderRadius: "9999px",
-                        bgcolor: "#f1f5f9",
-                        "& .MuiLinearProgress-bar": {
-                          bgcolor: streamTheme.progressBar,
-                          borderRadius: "9999px",
-                        },
-                      }}
-                    />
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", minWidth: 90 }}
-                    >
-                      {streamProgress}% Complete
-                    </Typography>
-                  </Stack>
-
                   {/* Overall sprint stats */}
                   <Stack
                     direction="row"
                     spacing={1.5}
-                    sx={{ mt: 1.5, alignItems: "center", flexWrap: "wrap" }}
+                    sx={{ alignItems: "center", flexWrap: "wrap" }}
                   >
                     <Typography
                       variant="body2"
