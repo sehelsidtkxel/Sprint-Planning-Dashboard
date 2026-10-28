@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import SignalLogo from "./SignalLogo";
+import BrandLogo from "./BrandLogo";
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -106,7 +106,7 @@ export default function Header({
               minWidth: 0,
             }}
           >
-            <SignalLogo height={24} color="#161616" />
+            <BrandLogo height={24} color="#161616" />
           </Box>
 
           <Stack

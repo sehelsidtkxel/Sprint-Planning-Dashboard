@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import BrandLogo from "./BrandLogo";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 import AppBar from "@mui/material/AppBar";
@@ -72,34 +72,11 @@ export default function AdminLayout({
         }}
       >
         <Box sx={{ p: 2 }}>
-          <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
-            <Box
-              sx={{
-                bgcolor: "white",
-                borderRadius: 0,
-                p: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Image
-                src="/logo.jpeg"
-                alt="Logo"
-                width={46}
-                height={46}
-                style={{ objectFit: "contain" }}
-              />
-            </Box>
-
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                Signal
-              </Typography>
-              <Typography variant="caption" sx={{ color: "rgba(226,232,240,0.7)" }}>
-                Admin Portal
-              </Typography>
-            </Box>
+          <Stack spacing={1} sx={{ py: 1, alignItems: "flex-start" }}>
+            <BrandLogo height={22} color="#ffffff" />
+            <Typography variant="caption" sx={{ color: "rgba(226,232,240,0.7)" }}>
+              Admin Portal
+            </Typography>
           </Stack>
         </Box>
 

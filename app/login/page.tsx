@@ -11,6 +11,7 @@ import Typography from "@mui/material/Typography";
 import PageShell from "../../components/mui/PageShell";
 import SectionCard from "../../components/mui/SectionCard";
 import Alert from "@mui/material/Alert";
+import BrandLogo from "../../components/BrandLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -56,6 +57,9 @@ export default function LoginPage() {
           <Box component="form" onSubmit={handleLogin}>
             <Stack spacing={2}>
               <Box>
+                <Box sx={{ mb: 3 }}>
+                  <BrandLogo height={24} color="#161616" />
+                </Box>
                 <Typography variant="h4" sx={{ fontWeight: 700 }}>
                   Admin Login
                 </Typography>

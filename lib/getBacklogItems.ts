@@ -1,7 +1,9 @@
 import { supabase } from "./supabase";
 
 export async function getBacklogItems() {
-  if (!supabase) return [];
+  if (!supabase) {
+    throw new Error("Supabase is not configured");
+  }
 
   const { data, error } = await supabase
     .from("backlog_items")
@@ -16,8 +18,8 @@ export async function getBacklogItems() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
-    return [];
+    console.error("Failed to load backlog items:", error.message);
+    throw new Error(`Failed to load backlog items: ${error.message}`);
   }
 
   return data || [];
